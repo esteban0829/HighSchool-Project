@@ -78,8 +78,6 @@ void loop(void) {
         if(millis()-lastPressTime>50){
           res[i]=numberDetection();   i=(i%4)+1;            
         }
-        
-        
     }else{
       lastButtonState=1; //과거 버튼 상태
       buttonState=0;     //현재 버튼 상태
@@ -97,10 +95,11 @@ int numberDetection(){
   pinMode(XM, OUTPUT);  //핀 공유할 수도 있으니까 핀 모드 바꿔주기
   pinMode(YP, OUTPUT);
 
-  xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());    // xpos, ypos 좌표값 받기
-  ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());   
+  xpos = map(tp.x, TS_RT, TS_LEFT, 0, 3);    // xpos, ypos 좌표값 받기
+  ypos = map(tp.y, TS_BOT, TS_TOP, 0, 5);   
 
-  return 1;
+  if(ypos==0) return -1;
+  else return (ypos-1)*3+xpos;
 }
 
 
