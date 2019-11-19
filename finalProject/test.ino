@@ -21,6 +21,7 @@ MCUFRIEND_kbv tft;
 
 unsigned long testText();
 unsigned long test();
+void dummy();
 
 void setup(void) {
     Serial.begin(9600);
@@ -110,4 +111,46 @@ unsigned long test() {
     delay(500);
     
     return micros() - start;    //이 함수가 실행하는데 걸린시간을 반환한다.
+}
+
+
+
+void dummy(){
+  //width, height
+  int w=tft.width();
+  int h=tft.height();
+  //------------------------------------
+  tft.setCursor(0, 0);
+  tft.setTextColor(WHITE);  tft.setTextSize(1);
+  tft.println("Hello World!");
+  //------------------------------------
+  tft.drawLine(0,10,240,10,RED);
+  //------------------------------------
+  tft.drawFastHLine(0,20, w, YELLOW);
+  //------------------------------------
+  tft.drawRect(0,20,20,30,GREEN);
+  //------------------------------------
+  tft.fillRect(10,30,20,40,RED);
+  //------------------------------------
+  tft.drawCircle(100,100,50,GREEN);
+  //------------------------------------
+  tft.fillCircle(50,50,25,YELLOW);
+  //------------------------------------
+  tft.drawTriangle(
+    0,0, // peak
+    0,50, // bottom left
+    50,50, // bottom right
+    BLUE);
+  //------------------------------------
+  tft.fillTriangle(
+    5,5, // peak
+    5,45, // bottom left
+    45,45, // bottom right
+    RED);
+  //------------------------------------
+  tft.drawRoundRect(100,100,150,150,10,RED);
+  //------------------------------------
+  tft.fillRoundRect(200,200,250,250,10,GREEN);
+  //------------------------------------
+  delay(5000);
 }
