@@ -8,6 +8,7 @@
 #include "Adafruit_GFX.h"// Hardware-specific library
 #include <MCUFRIEND_kbv.h>
 MCUFRIEND_kbv tft;
+#include <TouchScreen.h>
 
 // 16진수로 표현되는 색깔을 실제 색깔이름에 대입
 #define  BLACK   0x0000
@@ -18,6 +19,16 @@ MCUFRIEND_kbv tft;
 #define MAGENTA 0xF81F
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
+
+//누르는 압력 제한
+#define MINPRESSURE 200
+#define MAXPRESSURE 1000
+
+//좌표값 관련 변수 지정
+const int XP=6,XM=A2,YP=A1,YM=7; //ID=0x9341
+const int TS_LEFT=907,TS_RT=136,TS_TOP=942,TS_BOT=139;
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+TSPoint tp;
 
 void testText();
 void numberDisplayt(int *arr);
@@ -38,13 +49,31 @@ void setup(void) {
     tft.fillScreen(BLACK);      //화면을 검은색으로 초기화 해준다.
     testText();
 
-    //------------------------------------   숫자 표시
+    //숫자 표시
     int arr[12]={1,2,3,4,5,6,7,8,9,'*',0,'<'};
     numberDisplay(arr);
 }
 
 void loop(void) {
+    uint16_t xpos, ypos;  //화면 x,y 좌표
+    tp = ts.getPoint();   //tp.x, tp.y 는 ADC 값
+ 
+    // if sharing pins, you'll need to fix the directions of the touchscreen pins
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    // we have some minimum pressure we consider 'valid'
+    // pressure of 0 means no pressing!
     
+    if (tp.z > MINPRESSURE && tp.z < MAXPRESSURE) {
+        
+        xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());
+        ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());        
+        
+        Serial.print("xpos : ");
+        Serial.print(xpos);
+        Serial.print("\typos : ");
+        Serial.println(ypos);
+    }
 }
 
 
