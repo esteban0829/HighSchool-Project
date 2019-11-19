@@ -32,6 +32,8 @@ TSPoint tp;
 
 void testText();
 void numberDisplayt(int *arr);
+void resDisplay(int *arr);
+int numberDetection();
 
 void setup(void) {
     Serial.begin(9600);
@@ -54,26 +56,51 @@ void setup(void) {
     numberDisplay(arr);
 }
 
+
 void loop(void) {
-    uint16_t xpos, ypos;  //화면 x,y 좌표
-    tp = ts.getPoint();   //tp.x, tp.y 는 ADC 값
- 
-    // if sharing pins, you'll need to fix the directions of the touchscreen pins
-    pinMode(XM, OUTPUT);
-    pinMode(YP, OUTPUT);
-    // we have some minimum pressure we consider 'valid'
-    // pressure of 0 means no pressing!
     
+    int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
+
+    tp = ts.getPoint();   //tp.z 는 ADC 값
+
+    int buttonState=0, lastButtonState=0;
+    unsigned long pressTime=0, lastPressTime=0;
+
+    int i=0;
     if (tp.z > MINPRESSURE && tp.z < MAXPRESSURE) {
+      
+        buttonState=1;     //현재 버튼 상대
+        lastButtonState=0; //과거 버튼 상태
         
-        xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());
-        ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());        
+        if(buttonState==1 && lastButtonState==0) lastPressTime=millis();   //버튼 처음 눌렸을 때 시간
+
+        //버튼 처음 눌렸을 때의 시간과 그후 시간의 차이가 50ms가 넘어갈때 코드 실행
+        if(millis()-lastPressTime>50){
+          res[i]=numberDetection();   i=(i%4)+1;            
+        }
         
-        Serial.print("xpos : ");
-        Serial.print(xpos);
-        Serial.print("\typos : ");
-        Serial.println(ypos);
+        
+    }else{
+      lastButtonState=1; //과거 버튼 상태
+      buttonState=0;     //현재 버튼 상태
     }
+
+    resDisplay(res);
+}
+
+
+
+int numberDetection(){
+  
+  uint16_t xpos, ypos;  //화면 x,y 좌표
+  tp = ts.getPoint();   //tp.x, tp.y 는 ADC 값
+  pinMode(XM, OUTPUT);  //핀 공유할 수도 있으니까 핀 모드 바꿔주기
+  pinMode(YP, OUTPUT);
+
+  xpos = map(tp.x, TS_RT, TS_LEFT, 0, tft.width());    // xpos, ypos 좌표값 받기
+  ypos = map(tp.y, TS_BOT, TS_TOP, 0, tft.height());   
+
+  return 1;
 }
 
 
@@ -111,12 +138,12 @@ void numberDisplay(int *arr) {
   int w=tft.width();                 // w : 240
 
   //3 X 4 격자판 표시하는 코드 
-  tft.drawFastHLine(0, 64, w, RED);
-  tft.drawFastHLine(0, 128, w, RED);
-  tft.drawFastHLine(0, 192, w, RED);
-  tft.drawFastHLine(0, 254, w, RED);
-  tft.drawFastVLine(80, 64, h-64, BLUE);
-  tft.drawFastVLine(160, 64, h-64, BLUE);
+  tft.drawFastHLine(0, 64-1, w, RED);
+  tft.drawFastHLine(0, 128-1, w, RED);
+  tft.drawFastHLine(0, 192-1, w, RED);
+  tft.drawFastHLine(0, 254-1, w, RED);
+  tft.drawFastVLine(80, 64-1, h-64-1, BLUE);
+  tft.drawFastVLine(160, 64-1, h-64-1, BLUE);
 
   //입력받은 숫자 표시하는 코드
   int idx=0;
@@ -129,7 +156,30 @@ void numberDisplay(int *arr) {
       else tft.print(arr[idx]);
       idx++;
     }
-  }
-  
+  }  
   delay(10);
+}
+
+
+void resDisplay(int *arr){
+  int h = tft.height();              // h : 320
+  int w = tft.width();               // w : 240
+
+  //1 X 4 격자판 표시하는 코드 
+  tft.drawFastVLine(0, 64, w, RED);
+  tft.drawFastVLine(60, 0, h-(320-64), GREEN);
+  tft.drawFastVLine(60, 0, h-(320-64), GREEN);
+
+  //입력받은 숫자 표시하는 코드
+  int idx=0;
+  tft.setTextColor(WHITE);
+  tft.setTextSize(7);
+  for(int j=0;j<240;j+=60){
+    tft.setCursor(j,0);
+    if(arr[idx]>9) tft.print((char)arr[idx]);  
+    else tft.print(arr[idx]);
+    idx++;
+  }  
+  delay(10);
+  
 }
