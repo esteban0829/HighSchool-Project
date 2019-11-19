@@ -157,7 +157,6 @@ void numberDisplay(int *arr) {
       idx++;
     }
   }  
-  delay(10);
 }
 
 
@@ -179,7 +178,5 @@ void resDisplay(int *arr){
     if(arr[idx]>9) tft.print((char)arr[idx]);  
     else tft.print(arr[idx]);
     idx++;
-  }  
-  delay(10);
-  
+  }
 }
