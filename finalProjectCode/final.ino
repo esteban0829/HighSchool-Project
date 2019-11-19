@@ -175,7 +175,7 @@ void resDisplay(int *arr){
   tft.setTextSize(7);
   for(int j=0;j<240;j+=60){
     tft.setCursor(j,0);
-    if(arr[idx]>9) tft.print((char)arr[idx]);  
+    if(arr[idx]>9) tft.fillRect(60*idx,0,60*(idx+1)); 
     else tft.print(arr[idx]);
     idx++;
   }
