@@ -37,6 +37,7 @@ char check();
 int numberIDetection();
 void correct();
 void unCorrect();
+void lockMode(int t);
 
 int arr[12]={1,2,3,4,5,6,7,8,9,'*',0,'<'};  //격자판에 들어갈 숫자
 
@@ -65,11 +66,15 @@ void setup(void) {
 int idx=1;
 int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
 int answer[4]={0,8,5,2};
+int manager[4]={1,2,3,4};
 int lastState = LOW, state=LOW;  //입력 상태 변수
 int reading;                     //현재 입력 상태
 
 int arrayCase=1;
 
+int O=0;
+int X=0;
+int M=0;
 void loop(void) {
     int cState;
     
@@ -89,14 +94,49 @@ void loop(void) {
         Serial.println("N");
       }else if(cState=='O'){
         Serial.println("O");
+        O=1;
       }else if(cState=='X'){
         Serial.println("X");
+        X+=1;
+      }else if(cState=='M'){
+        Serial.println("M");
+        M=1;
       }
       resDisplay(res);
       lastState=HIGH;
     }else{
       lastState=LOW;
     }
+
+
+    if(O==1){
+      Serial.println("Open Door");
+      O=0;
+    }else if(X==3){
+      Serial.println("30 Second Lock Mode");
+      lockMode(5000);
+      X=0;
+    }else if(M==1){
+      Serial.println("Manager Open Door");
+      M=0;
+    }
+}
+
+
+
+void lockMode(int t){
+  Serial.println(t);
+  tft.fillScreen(RED);
+  tft.setTextSize(7);
+  tft.setTextColor(WHITE);
+  tft.setCursor(0,50);
+  tft.println("30sec");
+  tft.println("Lock");
+  tft.println("Mode");
+  delay(t);
+  tft.fillScreen(BLACK);
+  numberDisplay(arr);
+  resDisplay(res);
 }
 
 
@@ -113,11 +153,11 @@ char check(){
     res[idx-1]=arr[i];
     idx=(idx%4)+1;
   }else if( arr[i]=='*' ){
-    int state=1;
+    int state=0;
     Serial.println("Detected : *");
-    for(int j=0;j<4;j++){
-      if(!(res[j]==answer[j])) state=0;
-    }
+    
+    if(res[0]==answer[0] && res[1]==answer[1] && res[2]==answer[2] && res[3]==answer[3]){state=1;}
+    if(res[0]==manager[0] && res[1]==manager[1] && res[2]==manager[2] && res[3]==manager[3]){state=2;}
     
     if(arrayCase==1){
       arr[0]=3;
@@ -173,15 +213,22 @@ char check(){
       arr[11]='<';
     }arrayCase=(arrayCase%4)+1;
     
+    
     //If passed!!
-    if(state){
+    if(state==1){
       Serial.println("CORRECT");
       correct();
       checkState='O';
       Serial.print("checkState : ");
       Serial.println(checkState);
     }
-    else{
+    else if(state==2){
+      Serial.println("CORRECT");
+      correct();
+      checkState='M';
+      Serial.print("checkState : ");
+      Serial.println(checkState);
+    }else{
       Serial.println("UNCORRECT");
       unCorrect();
       checkState='X';
