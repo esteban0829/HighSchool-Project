@@ -33,7 +33,7 @@ TSPoint tp;
 void testText();
 void numberDisplayt(int *arr);
 void resDisplay(int *arr);
-void check();
+char check();
 int numberIDetection();
 void correct();
 void unCorrect();
@@ -56,6 +56,8 @@ void setup(void) {
     tft.fillScreen(BLACK);      //화면을 검은색으로 초기화 해준다.
     testText();
 
+    Serial1.begin(9600);
+
     //숫자 표시
     numberDisplay(arr);
 }
@@ -65,7 +67,11 @@ int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
 int answer[4]={0,8,5,2};
 int lastState = LOW, state=LOW;  //입력 상태 변수
 int reading;                     //현재 입력 상태
+
+int arrayCase=1;
+
 void loop(void) {
+    int cState;
     
     tp = ts.getPoint();   //tp.z 는 ADC 값
 
@@ -78,7 +84,14 @@ void loop(void) {
     }
 
     if(reading==HIGH && lastState==LOW){
-      check();
+      cState=check();
+      if(cState=='N'){
+        Serial.println("N");
+      }else if(cState=='O'){
+        Serial.println("O");
+      }else if(cState=='X'){
+        Serial.println("X");
+      }
       resDisplay(res);
       lastState=HIGH;
     }else{
@@ -88,7 +101,8 @@ void loop(void) {
 
 
 
-void check(){
+char check(){
+  char checkState='N';
   int i;
   i=numberIDetection();
   Serial.print("idx : ");
@@ -105,7 +119,6 @@ void check(){
       if(!(res[j]==answer[j])) state=0;
     }
     
-    int arrayCase=1;
     if(arrayCase==1){
       arr[0]=3;
       arr[1]=9;
@@ -164,12 +177,16 @@ void check(){
     if(state){
       Serial.println("CORRECT");
       correct();
-      Serial.write(1);
+      checkState='O';
+      Serial.print("checkState : ");
+      Serial.println(checkState);
     }
     else{
       Serial.println("UNCORRECT");
       unCorrect();
-      Serial.write(0);
+      checkState='X';
+      Serial.print("checkState : ");
+      Serial.println(checkState);
     }
     
     //숫자 표시
@@ -186,6 +203,8 @@ void check(){
     Serial.print(",");
   }
   Serial.println();
+
+  return checkState;
 }
 
 
