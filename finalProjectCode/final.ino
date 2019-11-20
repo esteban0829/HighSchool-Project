@@ -33,7 +33,10 @@ TSPoint tp;
 void testText();
 void numberDisplayt(int *arr);
 void resDisplay(int *arr);
-int numberDetection();
+void check();
+int numberIDetection();
+
+int arr[12]={1,2,3,4,5,6,7,8,9,'*',0,'<'};  //격자판에 들어갈 숫자
 
 void setup(void) {
     Serial.begin(9600);
@@ -52,43 +55,61 @@ void setup(void) {
     testText();
 
     //숫자 표시
-    int arr[12]={1,2,3,4,5,6,7,8,9,'*',0,'<'};
     numberDisplay(arr);
 }
 
-
+int idx=1;
+int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
+int lastState = LOW, state=LOW;  //입력 상태 변수
+int reading;                     //현재 입력 상태
 void loop(void) {
     
-    int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
-
     tp = ts.getPoint();   //tp.z 는 ADC 값
 
-    int buttonState=0, lastButtonState=0;
-    unsigned long pressTime=0, lastPressTime=0;
-
-    int i=0;
     if (tp.z > MINPRESSURE && tp.z < MAXPRESSURE) {
-      
-        buttonState=1;     //현재 버튼 상대
-        lastButtonState=0; //과거 버튼 상태
-        
-        if(buttonState==1 && lastButtonState==0) lastPressTime=millis();   //버튼 처음 눌렸을 때 시간
-
-        //버튼 처음 눌렸을 때의 시간과 그후 시간의 차이가 50ms가 넘어갈때 코드 실행
-        if(millis()-lastPressTime>50){
-          res[i]=numberDetection();   i=(i%4)+1;            
-        }
+      reading=HIGH;
+      //Serial.println("pressed");
     }else{
-      lastButtonState=1; //과거 버튼 상태
-      buttonState=0;     //현재 버튼 상태
+      reading=LOW;
+      //Serial.println("unpressed");
     }
 
-    resDisplay(res);
+    if(reading==HIGH && lastState==LOW){
+      check();
+      resDisplay(res);
+      lastState=HIGH;
+    }else{
+      lastState=LOW;
+    }
 }
 
 
 
-int numberDetection(){
+void check(){
+  int i;
+  i=numberIDetection();
+  Serial.print("idx : ");
+  Serial.print(idx-1);
+  Serial.print("\t\tnumberIDetection : ");
+  Serial.println(i);
+  if( 0<=arr[i] && arr[i]<=9 ){
+    res[idx-1]=arr[i];
+    idx=(idx%4)+1;
+  }else if( arr[i]=='*' ){
+    Serial.println("Detected : *");
+  }else if( arr[i]=='<' ){
+    for(int i=0;i<4;i++)res[i]=' ';
+  }
+  for(int i=0;i<4;i++){
+    Serial.print(res[i]);
+    Serial.print(",");
+  }
+  Serial.println();
+}
+
+
+
+int numberIDetection(){
   
   uint16_t xpos, ypos;  //화면 x,y 좌표
   tp = ts.getPoint();   //tp.x, tp.y 는 ADC 값
@@ -164,18 +185,22 @@ void resDisplay(int *arr){
   int w = tft.width();               // w : 240
 
   //1 X 4 격자판 표시하는 코드 
-  tft.drawFastVLine(0, 64, w, RED);
-  tft.drawFastVLine(60, 0, h-(320-64), GREEN);
-  tft.drawFastVLine(60, 0, h-(320-64), GREEN);
+  //tft.drawFastVLine(0, 64, w, RED);
+  //tft.drawFastVLine(60, 0, h-(320-64), GREEN);
+  //tft.drawFastVLine(60, 0, h-(320-64), GREEN);
 
   //입력받은 숫자 표시하는 코드
   int idx=0;
   tft.setTextColor(WHITE);
   tft.setTextSize(7);
   for(int j=0;j<240;j+=60){
-    tft.setCursor(j,0);
-    if(arr[idx]>9) tft.fillRect(60*idx,0,60*(idx+1)); 
-    else tft.print(arr[idx]);
+    tft.setCursor(j+5,10);
+    if( 0<=arr[idx] && arr[idx]<=9 ){
+      tft.fillRect(60*idx,0,60*(idx+1),63,BLACK);
+      tft.print(arr[idx]); 
+    }else if( arr[idx]==32 ){  //  ' '=32
+      tft.fillRect(60*idx,0,60*(idx+1),63,BLUE);
+    }
     idx++;
   }
 }
