@@ -35,6 +35,8 @@ void numberDisplayt(int *arr);
 void resDisplay(int *arr);
 void check();
 int numberIDetection();
+void correct();
+void unCorrect();
 
 int arr[12]={1,2,3,4,5,6,7,8,9,'*',0,'<'};  //격자판에 들어갈 숫자
 
@@ -97,23 +99,115 @@ void check(){
     res[idx-1]=arr[i];
     idx=(idx%4)+1;
   }else if( arr[i]=='*' ){
-    int state=0;
+    int state=1;
     Serial.println("Detected : *");
     for(int j=0;j<4;j++){
-      if(res[j]==answer[j]) state=1;
-      else state=0;
+      if(!(res[j]==answer[j])) state=0;
     }
-    if(state) Serial.println("PASS");
-    else Serial.println("UNCORRECT");
+    
+    int arrayCase=1;
+    if(arrayCase==1){
+      arr[0]=3;
+      arr[1]=9;
+      arr[2]=5;
+      arr[3]=4;
+      arr[4]=0;
+      arr[5]=8;
+      arr[6]=1;
+      arr[7]=6;
+      arr[8]=7;
+      arr[9]='*';
+      arr[10]=2;
+      arr[11]='<';
+    }else if(arrayCase==2){
+      arr[0]=2;
+      arr[1]=3;
+      arr[2]=7;
+      arr[3]=1;
+      arr[4]=0;
+      arr[5]=6;
+      arr[6]=9;
+      arr[7]=8;
+      arr[8]=5;
+      arr[9]='*';
+      arr[10]=4;
+      arr[11]='<';
+    }else if(arrayCase==3){
+      arr[0]=4;
+      arr[1]=1;
+      arr[2]=0;
+      arr[3]=3;
+      arr[4]=7;
+      arr[5]=6;
+      arr[6]=8;
+      arr[7]=9;
+      arr[8]=5;
+      arr[9]='*';
+      arr[10]=2;
+      arr[11]='<';
+    }else{
+      arr[0]=9;
+      arr[1]=3;
+      arr[2]=8;
+      arr[3]=4;
+      arr[4]=0;
+      arr[5]=6;
+      arr[6]=2;
+      arr[7]=7;
+      arr[8]=5;
+      arr[9]='*';
+      arr[10]=1;
+      arr[11]='<';
+    }arrayCase=(arrayCase%4)+1;
+    
+    //If passed!!
+    if(state){
+      Serial.println("CORRECT");
+      correct();
+    }
+    else{
+      Serial.println("UNCORRECT");
+      unCorrect();
+    }
+    
+    //숫자 표시
+    tft.fillRect(0,63,240,320,BLACK);
+    numberDisplay(arr);
+    
   }else if( arr[i]=='<' ){
     for(int i=0;i<4;i++)res[i]=' ';
     idx=1;
   }
+  Serial.print("res : ");
   for(int i=0;i<4;i++){
     Serial.print(res[i]);
     Serial.print(",");
   }
   Serial.println();
+}
+
+
+
+void correct(){
+  tft.fillRect(0,0,240,63,GREEN);
+  tft.setCursor(0,0);
+  tft.setTextSize(5);
+  tft.print("CORRECT");
+  for(int i=0;i<4;i++)res[i]=' ';
+    idx=1;
+  delay(2000);
+}
+
+
+
+void unCorrect(){
+  tft.fillRect(0,0,240,63,RED);
+  tft.setCursor(0,0);
+  tft.setTextSize(4);
+  tft.print("UNCORRECT");
+  for(int i=0;i<4;i++)res[i]=' ';
+    idx=1;
+  delay(2000);
 }
 
 
