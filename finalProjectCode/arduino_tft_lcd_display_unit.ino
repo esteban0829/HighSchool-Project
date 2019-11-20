@@ -89,6 +89,7 @@ void loop(void) {
     }
 
     if(reading==HIGH && lastState==LOW){
+      Serial.println(arrayCase);
       cState=check();
       if(cState=='N'){
         Serial.println("N");
@@ -111,13 +112,17 @@ void loop(void) {
 
     if(O==1){
       Serial.println("Open Door");
+      Serial1.write('O');
       O=0;
     }else if(X==3){
       Serial.println("30 Second Lock Mode");
+      arrayCase=0;
+      Serial1.write('L');
       lockMode(5000);
       X=0;
     }else if(M==1){
       Serial.println("Manager Open Door");
+      Serial1.write('M');
       M=0;
     }
 }
@@ -135,6 +140,18 @@ void lockMode(int t){
   tft.println("Mode");
   delay(t);
   tft.fillScreen(BLACK);
+  arr[0]=1;
+  arr[1]=2;
+  arr[2]=3;
+  arr[3]=4;
+  arr[4]=5;
+  arr[5]=6;
+  arr[6]=7;
+  arr[7]=8;
+  arr[8]=9;
+  arr[9]='*';
+  arr[10]=0;
+  arr[11]='<';  
   numberDisplay(arr);
   resDisplay(res);
 }
@@ -158,8 +175,23 @@ char check(){
     
     if(res[0]==answer[0] && res[1]==answer[1] && res[2]==answer[2] && res[3]==answer[3]){state=1;}
     if(res[0]==manager[0] && res[1]==manager[1] && res[2]==manager[2] && res[3]==manager[3]){state=2;}
-    
-    if(arrayCase==1){
+
+    if(arrayCase==0){
+      arr[0]=1;
+      arr[1]=2;
+      arr[2]=3;
+      arr[3]=4;
+      arr[4]=5;
+      arr[5]=6;
+      arr[6]=7;
+      arr[7]=8;
+      arr[8]=9;
+      arr[9]='*';
+      arr[10]=0;
+      arr[11]='<';
+      arrayCase=1;
+    }
+    else if(arrayCase==1){
       arr[0]=3;
       arr[1]=9;
       arr[2]=5;
