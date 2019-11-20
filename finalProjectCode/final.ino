@@ -60,6 +60,7 @@ void setup(void) {
 
 int idx=1;
 int res[4]={' ',' ',' ',' '};    //입력된 숫자가 들어갈 배열
+int answer[4]={0,8,5,2};
 int lastState = LOW, state=LOW;  //입력 상태 변수
 int reading;                     //현재 입력 상태
 void loop(void) {
@@ -96,9 +97,17 @@ void check(){
     res[idx-1]=arr[i];
     idx=(idx%4)+1;
   }else if( arr[i]=='*' ){
+    int state=0;
     Serial.println("Detected : *");
+    for(int j=0;j<4;j++){
+      if(res[j]==answer[j]) state=1;
+      else state=0;
+    }
+    if(state) Serial.println("PASS");
+    else Serial.println("UNCORRECT");
   }else if( arr[i]=='<' ){
     for(int i=0;i<4;i++)res[i]=' ';
+    idx=1;
   }
   for(int i=0;i<4;i++){
     Serial.print(res[i]);
