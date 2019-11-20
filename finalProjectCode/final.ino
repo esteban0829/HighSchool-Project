@@ -164,10 +164,12 @@ void check(){
     if(state){
       Serial.println("CORRECT");
       correct();
+      Serial.write(1);
     }
     else{
       Serial.println("UNCORRECT");
       unCorrect();
+      Serial.write(0);
     }
     
     //숫자 표시
