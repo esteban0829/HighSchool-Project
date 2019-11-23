@@ -96,12 +96,14 @@ void loop(void) {
       }else if(cState=='O'){
         Serial.println("O");
         O=1;
+        X=0;
       }else if(cState=='X'){
         Serial.println("X");
         X+=1;
       }else if(cState=='M'){
         Serial.println("M");
         M=1;
+        X=0;
       }
       resDisplay(res);
       lastState=HIGH;
@@ -109,20 +111,20 @@ void loop(void) {
       lastState=LOW;
     }
 
-
+    
     if(O==1){
       Serial.println("Open Door");
-      Serial1.write('O');
+      Serial1.write('O');//send message to control
       O=0;
     }else if(X==3){
       Serial.println("30 Second Lock Mode");
       arrayCase=0;
-      Serial1.write('L');
+      Serial1.write('X');//send message to control
       lockMode(5000);
       X=0;
     }else if(M==1){
       Serial.println("Manager Open Door");
-      Serial1.write('M');
+      Serial1.write('M');//send message to control
       M=0;
     }
 }
