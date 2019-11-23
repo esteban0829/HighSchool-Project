@@ -6,16 +6,24 @@ void setup() {
   pinMode(13,OUTPUT);
 }
 
-int input;
-void loop() {
-  if(Serial1.available()){
-    input=Serial1.read();
-    Serial.println(input);
-    if(input==1){
-      blinkLed();
+char input;
+void loop(){
+  if(Serial.available()){
+    blinkLed();
+    input=Serial.read();
+    if(input=='O'){
+      Serial.write('O');
+      Serial1.write('O');
+    }else if(input=='M'){
+      Serial.write('M');
+      Serial1.write('M');
+    }else if(input=='X'){
+      Serial.write('X');
+      Serial1.write('X');
     }
   }
 }
+
 
 void blinkLed(){
   digitalWrite(13,HIGH);
