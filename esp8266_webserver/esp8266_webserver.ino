@@ -23,7 +23,7 @@ void setup()
   sendData("AT+CIPSERVER=1,80\r\n",1000,DEBUG);   // turn on server on port 80
 }
 
-int state=0;
+int state=1;
 unsigned long start=1;
 char input;
 void loop()
@@ -53,13 +53,13 @@ void loop()
        if(input=='O'){
          Serial.println("Door is Opened");
          webpage="<h1>Door is Opened</h1>";
-         state=1;
+         state=0;
          start=millis();
          stepping_motor_control(1);
        }else if(input=='M'){
          Serial.println("Manager Opened Door");
          webpage="<h1>Manager Opened Door</h1>";
-         state=1;
+         state=0;
          start=millis();
          stepping_motor_control(1);
        }else if(input=='X'){
@@ -69,15 +69,15 @@ void loop()
        }
     }
 
-
     if(millis()-start>5000){
       webpage="<h1>Door Closed</h1>";
-      state=0;
     }
 
     if(state==0){
       stepping_motor_control(2);
     }
+    
+    
      //---------------------------------------
 
      
@@ -110,7 +110,10 @@ void loop()
      
      sendData(closeCommand,3000,DEBUG);
     }
+
+    
   }
+    
   delay(5000);
 }
  
@@ -150,10 +153,10 @@ void stepping_motor_control(int direct){
   myStepper.setSpeed(14);                            //스텝 모터 스피드 설정
   
   if(direct==1){
-    myStepper.step(2048);             // 시계 반대 방향으로 한바퀴 회전
+    myStepper.step(1024);             // 시계 반대 방향으로 한바퀴 회전
     delay(500);
   }else if(direct==2){
-    myStepper.step(-2048);            // 시계 방향으로 한바퀴 회전
+    myStepper.step(-1024);            // 시계 방향으로 한바퀴 회전
     delay(500);
   }else{
     Serial.println("?");
