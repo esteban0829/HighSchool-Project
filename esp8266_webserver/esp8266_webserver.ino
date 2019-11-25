@@ -23,11 +23,81 @@ void setup()
   sendData("AT+CIPSERVER=1,80\r\n",1000,DEBUG);   // turn on server on port 80
 }
 
+
+String webpage="<h1>00 : 00 Server open</h1>";
 int state=1;
-unsigned long start=1;
 char input;
+unsigned long logTime;
+String temp;
+int logNum=1;
+
 void loop()
-{
+{ 
+  logTime=millis();
+  logTime/=1000;
+  Serial.print("logHoutTime : ");
+  Serial.print(logTime/60);
+  Serial.print("\t\tlogMinTime : ");
+  Serial.println(logTime%60);
+
+
+  
+  //check if singnal came and update log
+  //---------------------------------------
+  if(Serial.available()){
+    input=Serial.read();
+    if(input=='O'){
+      Serial.println("Door is Opened");
+      webpage+="<h";
+      webpage+=String(logNum);
+      webpage+=">";
+      webpage+=String(logTime/60);
+      webpage+=" : ";
+      webpage+=String(logTime%60);
+      webpage+=" Door is Opened";
+      webpage+="</h";
+      webpage+=String(logNum);
+      webpage+=">";
+      state=0;
+      stepping_motor_control(1);
+    }else if(input=='M'){
+      Serial.println("Manager Opened Door");
+      webpage+="<h";
+      webpage+=String(logNum);
+      webpage+=">";
+      webpage+=String(logTime/60);
+      webpage+=" : ";
+      webpage+=String(logTime%60);
+      webpage+=" Manager Opened Door";
+      webpage+="</h";
+      webpage+=String(logNum);
+      webpage+=">";
+      state=0;
+      stepping_motor_control(1);
+    }else if(input=='X'){
+      Serial.println("Wrong number Detected 3 Times");
+      webpage+="<h";
+      webpage+=String(logNum);
+      webpage+=">";
+      webpage+=String(logTime/60);
+      webpage+=" : ";
+      webpage+=String(logTime%60);
+      webpage+=" Wrong number Detected 3 Times";
+      webpage+="</h";
+      webpage+=String(logNum);
+      webpage+=">";
+    }
+  }
+
+    
+    if(state==0){
+      stepping_motor_control(2);
+      state=1;
+    }
+    //---------------------------------------
+    
+
+    
   if(esp8266.available()) // check if the esp is sending a message 
   {
     /*
@@ -44,41 +114,6 @@ void loop()
  
      int connectionId = esp8266.read()-48; // subtract 48 because the read() function returns 
                                            // the ASCII decimal value and 0 (the first decimal number) starts at 48
-
-     String webpage;
-
-     //---------------------------------------
-     if(Serial.available()){
-       input=Serial.read();
-       if(input=='O'){
-         Serial.println("Door is Opened");
-         webpage="<h1>Door is Opened</h1>";
-         state=0;
-         start=millis();
-         stepping_motor_control(1);
-       }else if(input=='M'){
-         Serial.println("Manager Opened Door");
-         webpage="<h1>Manager Opened Door</h1>";
-         state=0;
-         start=millis();
-         stepping_motor_control(1);
-       }else if(input=='X'){
-         Serial.println("Wrong number Detected 3 Times");
-         webpage="<h1>Wrong number Detected 3 Times</h1>";
-         start=millis();
-       }
-    }
-
-    if(millis()-start>5000){
-      webpage="<h1>Door Closed</h1>";
-    }
-
-    if(state==0){
-      stepping_motor_control(2);
-    }
-    
-    
-     //---------------------------------------
 
      
      String cipSend = "AT+CIPSEND=";
@@ -114,7 +149,7 @@ void loop()
     
   }
     
-  delay(5000);
+  delay(1000);
 }
  
  
@@ -153,10 +188,10 @@ void stepping_motor_control(int direct){
   myStepper.setSpeed(14);                            //스텝 모터 스피드 설정
   
   if(direct==1){
-    myStepper.step(1024);             // 시계 반대 방향으로 한바퀴 회전
+    myStepper.step(2048);             // 시계 반대 방향으로 한바퀴 회전
     delay(500);
   }else if(direct==2){
-    myStepper.step(-1024);            // 시계 방향으로 한바퀴 회전
+    myStepper.step(-2048);            // 시계 방향으로 한바퀴 회전
     delay(500);
   }else{
     Serial.println("?");
