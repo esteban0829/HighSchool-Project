@@ -94,7 +94,7 @@ void loop(void) {
       if(cState=='N'){
         Serial.println("N");
       }else if(cState=='O'){
-        Serial.println("O");
+        Serial.println("O");\
         O=1;
         X=0;
       }else if(cState=='X'){
@@ -115,6 +115,9 @@ void loop(void) {
     if(O==1){
       Serial.println("Open Door");
       Serial1.write('O');//send message to control
+      correct();
+      numberDisplay(arr);
+      resDisplay(res);
       O=0;
     }else if(X==3){
       Serial.println("30 Second Lock Mode");
@@ -125,6 +128,9 @@ void loop(void) {
     }else if(M==1){
       Serial.println("Manager Open Door");
       Serial1.write('M');//send message to control
+      correct();
+      numberDisplay(arr);
+      resDisplay(res);
       M=0;
     }
 }
@@ -251,14 +257,12 @@ char check(){
     //If passed!!
     if(state==1){
       Serial.println("CORRECT");
-      correct();
       checkState='O';
       Serial.print("checkState : ");
       Serial.println(checkState);
     }
     else if(state==2){
       Serial.println("CORRECT");
-      correct();
       checkState='M';
       Serial.print("checkState : ");
       Serial.println(checkState);
@@ -297,7 +301,7 @@ void correct(){
   tft.print("CORRECT");
   for(int i=0;i<4;i++)res[i]=' ';
     idx=1;
-  delay(2000);
+  delay(11000);
 }
 
 
