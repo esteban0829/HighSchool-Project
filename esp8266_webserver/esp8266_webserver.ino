@@ -91,6 +91,7 @@ void loop()
 
     
     if(state==0){
+      delay(2000);
       stepping_motor_control(2);
       state=1;
     }
